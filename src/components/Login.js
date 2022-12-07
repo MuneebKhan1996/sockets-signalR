@@ -1,36 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { FmlxTextBox } from 'fmlx-common-ui';
-import { FmlxButton } from 'fmlx-common-ui';
-import { HubConnectionBuilder } from '@microsoft/signalr';
+import React, { useContext, useEffect, useState } from 'react';
+import { FmlxButton, FmlxTextBox } from 'fmlx-common-ui';
+// import { HubConnectionBuilder } from '@microsoft/signalr';
 import { useNavigate } from 'react-router-dom';
+import { Context } from '../contexts/Context';
 
-const Login = () => {
+const Login = ({ socketConnection }) => {
   const navigate = useNavigate();
 
   const [uname, setUname] = useState('');
   const [pwd, setPwd] = useState('');
-  const [conn, setConn] = useState('');
+  const [username, setUsername] = useContext(Context);
+  // const [conn, setConn] = useState('');
 
   const style = {
     width: '50px',
   };
 
-  useEffect(() => {
-    let connection = new HubConnectionBuilder().withUrl('http://localhost:5156/hub/login').build();
-    console.log(connection, 'login');
-
-    connection.start().then(() => {
-      setConn(connection);
-    });
-  }, []);
+  useEffect(() => {}, [socketConnection]);
 
   const handleLogin = async () => {
     const payload = { username: uname, password: pwd };
 
-    conn
+    socketConnection
       .invoke('login', payload)
       .then(() => {
-        setTimeout(() => navigate('/Chat'), [2000]);
+        localStorage.setItem('currentUser', uname);
+        setUsername(uname);
+        navigate('/Chat');
       })
       .catch((err) => {
         console.log('err :', err);
